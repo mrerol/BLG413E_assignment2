@@ -1,0 +1,7 @@
+make-kpkg clean
+make localmodconfig 
+fakeroot make-kpkg --initrd --append-to-version=-custom kernel_image kernel_headers
+sudo dpkg -i linux-image-3.13
+sudo dpkg -i linux-headers-3.13
+sudo update-grub
+sudo reboot
