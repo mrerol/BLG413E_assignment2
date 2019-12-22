@@ -131,3 +131,9 @@ core-y		:= usr/ mycalls/set_nice_inc/ mycalls/get_nice_inc/
 Directory: diff_files/linux-source-3.13.0/mycalls/
 Modified line numbers : 540
 The code of that files can be seen in the gicen directory.
+
+# Screenshots 
+## Test 1
+ ![Test 1](tests/screenshots/test1.png)
+## Test 2
+ ![Test 2](tests/screenshots/test2.png) 
