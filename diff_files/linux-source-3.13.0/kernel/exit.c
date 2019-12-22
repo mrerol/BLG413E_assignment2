@@ -617,11 +617,6 @@ static void forget_original_parent(struct task_struct *father)
 			if (t->pdeath_signal)
 				group_send_sig_info(t->pdeath_signal,
 						    SEND_SIG_NOINFO, t);
-			/*			    
-			// my modification			    
-			long temp_nice_value = task_nice(reaper)+ reaper->nice_inc;
-			recursive_set_nice(t, temp_nice_value);		
-			* */
 				    
 		} while_each_thread(p, t);
 		reparent_leader(father, p, &dead_children);
@@ -714,13 +709,17 @@ static void recursive_set_nice(struct task_struct *task_in, long nice_value){
 	struct list_head *list;
 	struct task_struct *task;
 	
-	set_user_nice(task_in, nice_value);
-	printk(KERN_ALERT "func | recursive_set_nice: after set_user_nice new_nice_value : %ld\n",task_nice(task_in));
-	
+	printk(KERN_ALERT "func | recursive_set_nice: pid : %d\n", task_in->pid);
+
 	list_for_each(list, &task_in->children) {
+		
 		task = list_entry(list, struct task_struct, sibling);
-		/* task now points to one of current’s children */
-		long new_nice_value = task_nice(task_in) + task_in->nice_inc;
+		
+		set_user_nice(task, nice_value);
+		
+		printk(KERN_ALERT "func | recursive_set_nice: after set_user_nice new_nice_value : %ld\n",task_nice(task));
+		
+		long new_nice_value = task_nice(task) + task->nice_inc;
 		recursive_set_nice(task, new_nice_value);
 	}
 }
@@ -728,6 +727,8 @@ static void recursive_set_nice(struct task_struct *task_in, long nice_value){
 void do_exit(long code)
 {
 	struct task_struct *tsk = current;
+	struct task_struct *reaper;
+	
 	int group_dead;
 
 	profile_task_exit(tsk);
@@ -840,12 +841,14 @@ void do_exit(long code)
 	 */
 	flush_ptrace_hw_breakpoint(tsk);
 	
-
+	//my modification
+	reaper = find_new_reaper(tsk);
+	
+	long temp_nice_value = task_nice(reaper) + reaper->nice_inc;
+	recursive_set_nice(tsk, temp_nice_value);
+	
 	exit_notify(tsk, group_dead);
 	
-	//my modification
-	long temp_nice_value = task_nice(tsk->parent) + tsk->parent->nice_inc;
-	recursive_set_nice(tsk, temp_nice_value);	
 	
 #ifdef CONFIG_NUMA
 	task_lock(tsk);

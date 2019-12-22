@@ -1,7 +1,14 @@
+Compile:
 make-kpkg clean
 make localmodconfig 
 fakeroot make-kpkg --initrd --append-to-version=-custom kernel_image kernel_headers
+
+Run:
 sudo dpkg -i linux-image-3.13
 sudo dpkg -i linux-headers-3.13
 sudo update-grub
 sudo reboot
+
+Uninstalling compiled kernel:
+sudo dpkg -r linux-image-3.13.11-ckt39-custom
+sudo dpkg -r linux-headers-3.13.11-ckt39-custom
