@@ -133,6 +133,7 @@ Modified line numbers : 540
 The code of that files can be seen in the gicen directory.
 
 # Screenshots 
+The screenshots of the test can be seen below.
 ## Test 1
  ![Test 1](tests/screenshots/test1.png)
 ## Test 2
