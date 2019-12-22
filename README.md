@@ -1,6 +1,8 @@
 # BLG413E Assignment 2
 The required system call set_nice_inc is located in diff_files/linux-source-3.13.0/mycalls/ directory. Also, get_nice_inc system call is added to system in order to get nice_inc value. It is also located in the same place with set_nice_inc.
 In the project, modified parts are explained below. In the fork.c and exit.c files, searching as "my modification" gives you modified parts.
+Name: Muhammed Raşit EROL
+S. Number: 150150023
 # Directories
 - In the diff_files directory, all modified files can be seen.
 - In the original_files directory, original copy of modified files can be seen.
