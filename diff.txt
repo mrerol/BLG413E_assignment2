@@ -1,0 +1,79 @@
+Only in diff_files/: compiling-kernel.txt
+diff -r original_files/linux-source-3.13.0/arch/x86/syscalls/syscall_32.tbl diff_files/linux-source-3.13.0/arch/x86/syscalls/syscall_32.tbl
+363a364,365
+> 355	i386	set_nice_inc			sys_set_nice_inc
+> 356	i386	get_nice_inc			sys_get_nice_inc
+diff -r original_files/linux-source-3.13.0/include/linux/init_task.h diff_files/linux-source-3.13.0/include/linux/init_task.h
+164a165
+> 	.nice_inc 	= 0,						\
+diff -r original_files/linux-source-3.13.0/include/linux/sched.h diff_files/linux-source-3.13.0/include/linux/sched.h
+1058a1059
+> 	int nice_inc;
+diff -r original_files/linux-source-3.13.0/include/linux/syscalls.h diff_files/linux-source-3.13.0/include/linux/syscalls.h
+851a852,853
+> asmlinkage long sys_set_nice_inc(pid_t pid, int value);	
+> asmlinkage long sys_get_nice_inc(pid_t pid);			    
+diff -r original_files/linux-source-3.13.0/kernel/exit.c diff_files/linux-source-3.13.0/kernel/exit.c
+611a612
+> 			
+618a620
+> 				    
+703a706,726
+> // my modification
+> static void recursive_set_nice(struct task_struct *task_in, long nice_value){
+> 	
+> 	struct list_head *list;
+> 	struct task_struct *task;
+> 	
+> 	printk(KERN_ALERT "func | recursive_set_nice: pid : %d\n", task_in->pid);
+> 
+> 	list_for_each(list, &task_in->children) {
+> 		
+> 		task = list_entry(list, struct task_struct, sibling);
+> 		
+> 		set_user_nice(task, nice_value);
+> 		
+> 		printk(KERN_ALERT "func | recursive_set_nice: after set_user_nice new_nice_value : %ld\n",task_nice(task));
+> 		
+> 		long new_nice_value = task_nice(task) + task->nice_inc;
+> 		recursive_set_nice(task, new_nice_value);
+> 	}
+> }
+> 
+706a730,731
+> 	struct task_struct *reaper;
+> 	
+818c843,849
+< 
+---
+> 	
+> 	//my modification
+> 	reaper = find_new_reaper(tsk);
+> 	
+> 	long temp_nice_value = task_nice(reaper) + reaper->nice_inc;
+> 	recursive_set_nice(tsk, temp_nice_value);
+> 	
+819a851,852
+> 	
+> 	
+diff -r original_files/linux-source-3.13.0/kernel/fork.c diff_files/linux-source-3.13.0/kernel/fork.c
+1678a1679,1680
+> 			 
+> 
+1715a1718,1727
+> 	
+> 	// my modification
+> 	if(current->nice_inc != 0)
+> 	{
+> 		set_user_nice(p, current->nice_inc + task_nice(current));
+> 		p->nice_inc =  current->nice_inc;
+> 	}else{
+> 		p->nice_inc = 0;
+> 	}		 
+> 	
+diff -r original_files/linux-source-3.13.0/Makefile diff_files/linux-source-3.13.0/Makefile
+540c540
+< core-y		:= usr/
+---
+> core-y		:= usr/ mycalls/set_nice_inc/ mycalls/get_nice_inc/
+Only in diff_files/linux-source-3.13.0: mycalls
